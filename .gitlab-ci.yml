@@ -1,0 +1,9 @@
+stages:
+  - test
+
+hello-job:
+  stage: test
+  tags:
+    - ai-cicd-demo
+  script:
+    - echo "Runner is working"
