@@ -2,4 +2,4 @@
 count = 10
 num = 0
 print(count / num)
-print(100/0)
+print(1000/0)
