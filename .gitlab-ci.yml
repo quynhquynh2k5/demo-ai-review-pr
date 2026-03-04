@@ -13,7 +13,8 @@ stages:
   - pr_agent
 default:
   tags:
-  - runner-gpu87
+  # - runner-gpu87
+  - ai-cicd-demo
 pr_agent_job:
   stage: pr_agent
   image:
