@@ -20,6 +20,7 @@ pr_agent_job:
     name: codingassistant/pr_agent:latest
     entrypoint: [""]
   script:
+    - cp $CI_PROJECT_DIR/openai_ai_handler.py /app/pr_agent/algo/ai_handlers/openai_ai_handler.py
     - cd /app
     - echo "Running PR Agent action step"
     - export MR_URL="$CI_MERGE_REQUEST_PROJECT_URL/-/merge_requests/$CI_MERGE_REQUEST_IID"
