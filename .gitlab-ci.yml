@@ -10,11 +10,22 @@
 
 
 stages:
+  - scan
   - pr_agent
 default:
   tags:
   # - runner-gpu87
   - ai-cicd-demo
+
+.CheckSonarqube: &CheckSonarqube
+  stage: scan
+  image: sonarsource/sonar-scanner-cli:4.6
+  retry: 2
+  script:
+   - sonar-scanner -Dsonar.projectKey=IT.IC.HTDLL.SMARTUX.UXDATA-EXTRA-BACKEND -Dsonar.sources=. -Dsonar.java.binaries=**/* -Dsonar.host.url=http://codequality.devops.vnpt.vn/ -Dsonar.login=f45723cdbc094759ad027c2afaf242a634987829
+
+
+
 pr_agent_job:
   stage: pr_agent
   image:
@@ -35,4 +46,11 @@ pr_agent_job:
     - python3 -m pr_agent.cli --pr_url="$MR_URL" improve
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+
+scan_code:
+  <<: *CheckSonarqube
+  only:
+    - dev
+    - master
+
 
