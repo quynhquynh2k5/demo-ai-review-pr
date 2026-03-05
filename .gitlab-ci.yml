@@ -1,20 +1,43 @@
-# stages:
-#   - test
-
-# hello-job:
-#   stage: test
-#   tags:
-#     - ai-cicd-demo
-#   script:
-#     - echo "Runner is working"
-
-
 stages:
+  - lint
+  - scan
   - pr_agent
+
 default:
   tags:
-  # - runner-gpu87
-  - ai-cicd-demo
+    - ai-cicd-demo
+
+# ─── LINT ────────────────────────────────────────────────────────────────────
+
+lint:
+  stage: lint
+  image: python:3.12-slim
+  before_script:
+    - pip install black flake8 mypy
+  script:
+    - black --check src/ tests/
+    - flake8 src/ tests/
+    - mypy src/ --ignore-missing-imports
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+
+# ─── SONARQUBE ───────────────────────────────────────────────────────────────
+
+sonarqube:
+  stage: scan
+  image: sonarsource/sonar-scanner-cli:4.6
+  retry: 2
+  script:
+    - sonar-scanner
+        -Dsonar.projectKey=$SONAR_PROJECT_KEY
+        -Dsonar.sources=.
+        -Dsonar.host.url=$SONAR_HOST_URL
+        -Dsonar.login=$SONAR_TOKEN
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+
+# ─── PR AGENT ────────────────────────────────────────────────────────────────
+
 pr_agent_job:
   stage: pr_agent
   image:
@@ -36,4 +59,3 @@ pr_agent_job:
     - python3 -m pr_agent.cli --pr_url="$MR_URL" improve
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-
