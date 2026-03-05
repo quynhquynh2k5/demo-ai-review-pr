@@ -11,7 +11,7 @@ default:
 
 lint:
   stage: lint
-  image: python:3.12-slim
+  image: ai-repository.vnpt.vn/vnsocial/python:3.12
   before_script:
     - pip install black flake8 mypy
   script:
