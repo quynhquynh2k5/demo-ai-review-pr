@@ -25,7 +25,7 @@ lint:
 
 sonarqube:
   stage: scan
-  image: sonarsource/sonar-scanner-cli:4.6
+  image: ai-repository.vnpt.vn/vnsocial/sonarsource/sonar-scanner-cli:4.6
   retry: 2
   script:
     - sonar-scanner
@@ -41,7 +41,7 @@ sonarqube:
 pr_agent_job:
   stage: pr_agent
   image:
-    name: codingassistant/pr_agent:latest
+    name: ai-repository.vnpt.vn/vnsocial/codingassistant/pr_agent:latest
     entrypoint: [""]
   script:
     - cp $CI_PROJECT_DIR/openai_ai_handler.py /app/pr_agent/algo/ai_handlers/openai_ai_handler.py
