@@ -29,6 +29,4 @@ class Product(Base):
     cart_items: Mapped[list["CartItem"]] = relationship(  # type: ignore[name-defined]
         "CartItem", back_populates="product"
     )
-    reviews: Mapped[list["Review"]] = relationship(  # type: ignore[name-defined]
-        "Review", back_populates="product"
-    )
+    reviews: Mapped[list["Review"]] = relationship("Review", back_populates="product")  # type: ignore[name-defined]

@@ -19,9 +19,7 @@ async def checkout(db: AsyncSession, user: User, payload: CheckoutRequest) -> Or
     cart = await get_or_create_cart(db, user.id)
 
     if not cart.items:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Cart is empty"
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Cart is empty")
 
     coupon = None
     if payload.coupon_code:
@@ -29,9 +27,7 @@ async def checkout(db: AsyncSession, user: User, payload: CheckoutRequest) -> Or
 
     async with db.begin_nested():
         product_ids = [item.product_id for item in cart.items]
-        locked_result = await db.execute(
-            select(Product).where(Product.id.in_(product_ids)).with_for_update()
-        )
+        locked_result = await db.execute(select(Product).where(Product.id.in_(product_ids)).with_for_update())
         products_by_id = {p.id: p for p in locked_result.scalars().all()}
 
         for cart_item in cart.items:
@@ -53,9 +49,7 @@ async def checkout(db: AsyncSession, user: User, payload: CheckoutRequest) -> Or
             discount_amount = compute_discount(subtotal, coupon)
 
         taxable_amount = subtotal - discount_amount
-        tax_amount = (taxable_amount * Decimal(str(settings.tax_rate))).quantize(
-            Decimal("0.01")
-        )
+        tax_amount = (taxable_amount * Decimal(str(settings.tax_rate))).quantize(Decimal("0.01"))
         total_amount = taxable_amount + tax_amount
 
         order = Order(
@@ -85,20 +79,14 @@ async def checkout(db: AsyncSession, user: User, payload: CheckoutRequest) -> Or
     await clear_cart(db, user.id)
     await db.commit()
 
-    result = await db.execute(
-        select(Order).where(Order.id == order.id).options(selectinload(Order.items))
-    )
+    result = await db.execute(select(Order).where(Order.id == order.id).options(selectinload(Order.items)))
     return result.scalar_one()
 
 
-async def get_orders(
-    db: AsyncSession, user_id: int, pagination: PaginationParams
-) -> tuple[list[Order], int]:
+async def get_orders(db: AsyncSession, user_id: int, pagination: PaginationParams) -> tuple[list[Order], int]:
     from sqlalchemy import func
 
-    count_result = await db.execute(
-        select(func.count()).select_from(Order).where(Order.user_id == user_id)
-    )
+    count_result = await db.execute(select(func.count()).select_from(Order).where(Order.user_id == user_id))
     total = count_result.scalar_one()
 
     result = await db.execute(
@@ -115,15 +103,11 @@ async def get_orders(
 
 async def get_order(db: AsyncSession, order_id: int, user_id: int) -> Order:
     result = await db.execute(
-        select(Order)
-        .where(Order.id == order_id, Order.user_id == user_id)
-        .options(selectinload(Order.items))
+        select(Order).where(Order.id == order_id, Order.user_id == user_id).options(selectinload(Order.items))
     )
     order = result.scalar_one_or_none()
     if order is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Order not found"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Order not found")
     return order
 
 
@@ -137,15 +121,11 @@ async def cancel_order(db: AsyncSession, order_id: int, user_id: int) -> Order:
         )
 
     async with db.begin_nested():
-        items_result = await db.execute(
-            select(OrderItem).where(OrderItem.order_id == order.id)
-        )
+        items_result = await db.execute(select(OrderItem).where(OrderItem.order_id == order.id))
         order_items = items_result.scalars().all()
 
         product_ids = [item.product_id for item in order_items]
-        products_result = await db.execute(
-            select(Product).where(Product.id.in_(product_ids)).with_for_update()
-        )
+        products_result = await db.execute(select(Product).where(Product.id.in_(product_ids)).with_for_update())
         products_by_id = {p.id: p for p in products_result.scalars().all()}
 
         for item in order_items:

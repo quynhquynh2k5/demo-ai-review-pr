@@ -8,17 +8,11 @@ from src.database import Base
 
 class Review(Base):
     __tablename__ = "reviews"
-    __table_args__ = (
-        UniqueConstraint("user_id", "product_id", name="uq_user_product_review"),
-    )
+    __table_args__ = (UniqueConstraint("user_id", "product_id", name="uq_user_product_review"),)
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    user_id: Mapped[int] = mapped_column(
-        ForeignKey("users.id"), nullable=False, index=True
-    )
-    product_id: Mapped[int] = mapped_column(
-        ForeignKey("products.id"), nullable=False, index=True
-    )
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False, index=True)
+    product_id: Mapped[int] = mapped_column(ForeignKey("products.id"), nullable=False, index=True)
     rating: Mapped[int] = mapped_column(Integer, nullable=False)
     comment: Mapped[str] = mapped_column(Text, nullable=False, default="")
     created_at: Mapped[datetime] = mapped_column(

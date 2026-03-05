@@ -28,9 +28,7 @@ async def list_reviews_endpoint(
     pagination: PaginationParams = Depends(),
     db: AsyncSession = Depends(get_db),
 ) -> ReviewListResponse:
-    reviews, total, average_rating = await get_product_reviews(
-        db, product_id, pagination
-    )
+    reviews, total, average_rating = await get_product_reviews(db, product_id, pagination)
     return ReviewListResponse(
         items=[ReviewResponse.model_validate(r) for r in reviews],
         total=total,

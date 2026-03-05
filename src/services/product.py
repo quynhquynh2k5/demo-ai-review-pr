@@ -18,9 +18,7 @@ async def list_products(
     category: str | None = None,
 ) -> tuple[list[Product], int]:
     query = select(Product).where(Product.is_active == True)  # noqa: E712
-    count_query = (
-        select(func.count()).select_from(Product).where(Product.is_active == True)
-    )  # noqa: E712
+    count_query = select(func.count()).select_from(Product).where(Product.is_active == True)  # noqa: E712
 
     if search:
         query = query.where(Product.name.ilike(f"%{search}%"))
@@ -30,11 +28,7 @@ async def list_products(
         query = query.where(Product.category == category)
         count_query = count_query.where(Product.category == category)
 
-    query = (
-        query.order_by(Product.created_at.desc())
-        .offset(pagination.offset)
-        .limit(pagination.limit)
-    )
+    query = query.order_by(Product.created_at.desc()).offset(pagination.offset).limit(pagination.limit)
 
     total_result = await db.execute(count_query)
     total = total_result.scalar_one()
@@ -46,14 +40,10 @@ async def list_products(
 
 
 async def get_product(db: AsyncSession, product_id: int) -> Product:
-    result = await db.execute(
-        select(Product).where(Product.id == product_id, Product.is_active == True)
-    )  # noqa: E712
+    result = await db.execute(select(Product).where(Product.id == product_id, Product.is_active == True))  # noqa: E712
     product = result.scalar_one_or_none()
     if product is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Product not found"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
     return product
 
 
@@ -65,9 +55,7 @@ async def create_product(db: AsyncSession, payload: ProductCreate) -> Product:
     return product
 
 
-async def update_product(
-    db: AsyncSession, product_id: int, payload: ProductUpdate
-) -> Product:
+async def update_product(db: AsyncSession, product_id: int, payload: ProductUpdate) -> Product:
     product = await get_product(db, product_id)
     for field, value in payload.model_dump(exclude_none=True).items():
         setattr(product, field, value)

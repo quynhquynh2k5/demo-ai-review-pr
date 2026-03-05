@@ -12,9 +12,7 @@ from src.schemas.coupon import CouponCreate
 async def create_coupon(db: AsyncSession, payload: CouponCreate) -> Coupon:
     existing = await db.execute(select(Coupon).where(Coupon.code == payload.code))
     if existing.scalar_one_or_none() is not None:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT, detail="Coupon code already exists"
-        )
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Coupon code already exists")
 
     coupon = Coupon(**payload.model_dump())
     db.add(coupon)
@@ -28,14 +26,10 @@ async def validate_coupon(db: AsyncSession, code: str) -> Coupon:
     coupon = result.scalar_one_or_none()
 
     if coupon is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Coupon not found"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Coupon not found")
 
     if not coupon.is_active:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Coupon is not active"
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Coupon is not active")
 
     if coupon.current_uses >= coupon.max_uses:
         raise HTTPException(
@@ -44,17 +38,13 @@ async def validate_coupon(db: AsyncSession, code: str) -> Coupon:
         )
 
     if coupon.expires_at is not None and coupon.expires_at < datetime.now(timezone.utc):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Coupon has expired"
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Coupon has expired")
 
     return coupon
 
 
 def compute_discount(subtotal: Decimal, coupon: Coupon) -> Decimal:
-    discount = (subtotal * coupon.discount_percent / Decimal("100")).quantize(
-        Decimal("0.01")
-    )
+    discount = (subtotal * coupon.discount_percent / Decimal("100")).quantize(Decimal("0.01"))
     return min(discount, subtotal)
 
 
