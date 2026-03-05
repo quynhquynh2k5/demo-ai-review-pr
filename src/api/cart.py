@@ -7,13 +7,7 @@ from src.database import get_db
 from src.dependencies import get_current_user
 from src.models.user import User
 from src.schemas.cart import CartItemAdd, CartItemUpdate, CartResponse
-from src.services.cart import (
-    add_item,
-    compute_cart_subtotal,
-    get_or_create_cart,
-    remove_item,
-    update_item,
-)
+from src.services.cart import add_item, compute_cart_subtotal, get_or_create_cart, remove_item, update_item
 
 router = APIRouter(prefix="/cart", tags=["cart"])
 

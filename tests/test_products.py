@@ -1,7 +1,6 @@
 import pytest
 from httpx import AsyncClient
 
-
 PRODUCT_PAYLOAD = {
     "name": "Test Product",
     "description": "A test product",
